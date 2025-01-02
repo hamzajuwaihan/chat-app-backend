@@ -1,0 +1,11 @@
+# Ignore the Webpack config file
+webpack-hmr.config.js
+
+# Ignore the ESLint config file (if necessary)
+.eslintrc.js
+
+# Ignore build output
+dist/
+
+# Ignore node_modules
+node_modules/

@@ -1,17 +1,13 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import databaseConfig from '../config/database.config';
+
+const dbConfig = databaseConfig();
 
 const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '54321', 10),
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'chat_app',
-  synchronize: false,
-  logging: true,
+  ...dbConfig,
   entities: ['src/**/entities/*.entity.ts'],
   migrations: ['src/database/migrations/*-migration.ts'],
   migrationsRun: true,
-});
+} as DataSourceOptions);
 
 export default AppDataSource;

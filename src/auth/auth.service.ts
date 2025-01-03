@@ -14,13 +14,14 @@ export class AuthService {
   /**
    * Register a new user
    */
-  async register(
-    email: string,
-    password: string,
-    nickname: string,
-  ): Promise<User> {
-    const hashedPassword = await argon2.hash(password);
-    return this.userService.createUser(email, nickname, hashedPassword);
+  async register(user: User): Promise<{ accessToken: string }> {
+    user.password_hash = await argon2.hash(user.password_hash);
+    const savedUser = await this.userService.createUser(user);
+
+    const payload = { sub: savedUser.id, email: savedUser.email };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return { accessToken };
   }
 
   /**
@@ -41,7 +42,7 @@ export class AuthService {
     }
 
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken };
   }
@@ -49,12 +50,12 @@ export class AuthService {
   /**
    * Create a guest session
    */
-  async createGuest(nickname: string): Promise<{ accessToken: string }> {
-    const guest = await this.userService.createGuest(nickname);
+  async createGuest(user: User): Promise<{ accessToken: string }> {
+    const guest = await this.userService.createGuest(user.nickname);
 
     const payload = { sub: guest.id, isGuest: true };
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '24h', // Match guest expiration logic
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '24h',
     });
 
     return { accessToken };
@@ -71,6 +72,6 @@ export class AuthService {
    * Validate user by JWT
    */
   async validateUser(userId: string): Promise<User> {
-    return this.userService.findById(userId);
+    return await this.userService.findById(userId);
   }
 }

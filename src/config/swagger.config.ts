@@ -3,11 +3,11 @@ import { INestApplication } from '@nestjs/common';
 
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
-    .setTitle('Chat Application API')
-    .setDescription('API documentation for the chat application')
+    .setTitle('Auth API')
+    .setDescription('API for authentication')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 }

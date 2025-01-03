@@ -17,7 +17,7 @@ export class UserService {
     const guestUser = this.userRepository.create({
       nickname,
       is_guest: true,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expiration in 24 hours
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
     return this.userRepository.save(guestUser);
   }
@@ -25,28 +25,9 @@ export class UserService {
   /**
    * Register a new user
    */
-  async createUser(
-    email: string,
-    nickname: string,
-    passwordHash: string,
-  ): Promise<User> {
-    // Check if email already exists
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-    if (existingUser) {
-      throw new Error('Email already registered');
-    }
 
-    // Create a new registered user
-    const newUser = this.userRepository.create({
-      email,
-      password_hash: passwordHash,
-      nickname,
-      is_guest: false,
-      expires_at: null, // No expiration for registered users
-    });
-
+  async createUser(user: Partial<User>): Promise<User> {
+    const newUser = this.userRepository.create(user);
     return this.userRepository.save(newUser);
   }
 

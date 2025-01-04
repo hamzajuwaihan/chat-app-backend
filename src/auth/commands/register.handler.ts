@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { UserService } from 'src/users/user.service';
+import { UserService } from 'src/user/user.service';
 import { RegisterCommand } from './register.command';
 
 @CommandHandler(RegisterCommand)

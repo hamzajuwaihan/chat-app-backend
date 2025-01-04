@@ -1,9 +1,12 @@
+import { Profile } from 'src/profile/entities/profile.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('users')
@@ -25,6 +28,10 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   expires_at: Date | null;
+
+  @OneToOne(() => Profile, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn()
+  profile: Profile;
 
   @CreateDateColumn()
   createdAt: Date;

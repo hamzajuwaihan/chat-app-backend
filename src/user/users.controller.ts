@@ -1,9 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { User } from './entities/user.entity';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UuidParamDto } from '../common/dtos/uuid-param.dto';
 import { GetUserByIdQuery } from './queries/get-user-by-id.query';
 import { QueryBus } from '@nestjs/cqrs';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {

@@ -5,12 +5,15 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { LoggingMiddleware } from './middleware/logging/logging.middleware';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './user/users.module';
 import { MessagesModule } from './messages/messages.module';
 import { RedisModule } from './redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ProfileModule } from './profile/profile.module';
+import { CountryModule } from './country/country.module';
+import { CommandRunnerModule } from 'nest-commander';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { APP_GUARD } from '@nestjs/core';
         limit: 5,
       },
     ]),
+    ProfileModule,
+    CountryModule,
+    CommandRunnerModule,
   ],
   controllers: [AppController],
   providers: [

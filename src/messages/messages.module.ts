@@ -8,18 +8,18 @@ import { GetMessagesHandler } from './queries/get-messages.handler';
 import { SendMessageHandler } from './commands/send-message.handler';
 import { MessagesGateway } from './messages.gateway';
 import { JwtModule } from '@nestjs/jwt';
-import { User } from 'src/users/entities/user.entity';
-import { UserService } from 'src/users/user.service';
 import { GetRecentMessagesHandler } from './queries/get-recent-messages.handler';
+import { UsersModule } from 'src/user/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message, User]),
+    TypeOrmModule.forFeature([Message]),
     CqrsModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
       signOptions: { expiresIn: '1h' },
     }),
+    UsersModule,
   ],
   controllers: [MessagesController],
   providers: [
@@ -28,7 +28,6 @@ import { GetRecentMessagesHandler } from './queries/get-recent-messages.handler'
     GetMessagesHandler,
     GetRecentMessagesHandler,
     MessagesGateway,
-    UserService,
   ],
 })
 export class MessagesModule {}

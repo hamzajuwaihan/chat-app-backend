@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly profileService: ProfileService,
   ) {}
 
   /**
@@ -28,6 +30,7 @@ export class UserService {
 
   async createUser(user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
+    newUser.profile = await this.profileService.create();
     return this.userRepository.save(newUser);
   }
 
@@ -42,7 +45,12 @@ export class UserService {
    * Get user by ID
    */
   async findById(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: {
+        profile: true,
+      },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }

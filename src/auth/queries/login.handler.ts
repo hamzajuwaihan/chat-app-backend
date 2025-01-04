@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../../users/user.service';
+import { UserService } from '../../user/user.service';
 import { RedisService } from '../../redis/redis.service';
 import { LoginQuery } from './login.query';
 

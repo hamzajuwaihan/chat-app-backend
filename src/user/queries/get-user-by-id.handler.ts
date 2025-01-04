@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { User } from '../entities/user.entity';
-import { GetUserByIdQuery } from '../queries/get-user-by-id.query';
+import { GetUserByIdQuery } from './get-user-by-id.query';
 import { NotFoundException } from '@nestjs/common';
 import { UserService } from '../user.service';
 

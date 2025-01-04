@@ -16,7 +16,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserService } from 'src/users/user.service';
+import { UserService } from 'src/user/user.service';
 import { SendMessageCommand } from './commands/send-message.command';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { GetRecentMessagesQuery } from './queries/get-recent-messages.query';

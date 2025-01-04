@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/users/user.service';
+import { UserService } from 'src/user/user.service';
 import { CreateGuestCommand } from './create-guest.command';
 
 @CommandHandler(CreateGuestCommand)

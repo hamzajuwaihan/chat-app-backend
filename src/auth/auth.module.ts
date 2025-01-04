@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { UserService } from '../users/user.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LoginHandler } from './queries/login.handler';
@@ -14,14 +11,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from '../redis/redis.module';
 import { RefreshTokenHandler } from './queries/refresh-token.handler';
 import { LogoutHandler } from './commands/logout.handler';
+import { UsersModule } from 'src/user/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
     CqrsModule,
     RedisModule,
     ConfigModule,
-
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -30,11 +26,11 @@ import { LogoutHandler } from './commands/logout.handler';
         signOptions: { expiresIn: '15m' },
       }),
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    UserService,
     JwtStrategy,
     LoginHandler,
     RegisterHandler,

@@ -11,5 +11,6 @@ import { GetCountryByIdHandler } from './queries/get-country-by-id.handler';
   imports: [TypeOrmModule.forFeature([Country]), CqrsModule],
   controllers: [CountryController],
   providers: [CountryService, GetCountriesHandler, GetCountryByIdHandler],
+  exports: [CountryService],
 })
 export class CountryModule {}

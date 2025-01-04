@@ -21,6 +21,7 @@ export class UserService {
       is_guest: true,
       expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
+    guestUser.profile = await this.profileService.create();
     return this.userRepository.save(guestUser);
   }
 

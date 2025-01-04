@@ -1,28 +1,35 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ProfileService } from './profile.service';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { GetProfileByUserIdQuery } from './queries/get-profile-by-userId.query';
+import { UuidParamDto } from 'src/common/dtos/uuid-param.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileCommand } from './commands/update-profile.command';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { OwnershipGuard } from 'src/auth/guards/ownership.gaurd';
 
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
-
-  @Get()
-  findAll() {
-    return this.profileService.findAll();
-  }
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
+  async getProfile(@Param() params: UuidParamDto) {
+    return await this.queryBus.execute(new GetProfileByUserIdQuery(params.id));
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(+id, updateProfileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profileService.remove(+id);
+  @UseGuards(OwnershipGuard)
+  async updateProfile(
+    @Param() params: UuidParamDto,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return await this.commandBus.execute(
+      new UpdateProfileCommand(params.id, dto),
+    );
   }
 }

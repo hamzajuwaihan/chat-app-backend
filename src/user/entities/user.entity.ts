@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity('users')
@@ -29,8 +28,10 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   expires_at: Date | null;
 
-  @OneToOne(() => Profile, { cascade: true, onDelete: 'CASCADE' })
-  @JoinColumn()
+  @OneToOne(() => Profile, (profile) => profile.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   profile: Profile;
 
   @CreateDateColumn()

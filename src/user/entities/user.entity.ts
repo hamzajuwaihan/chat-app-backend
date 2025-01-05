@@ -1,3 +1,4 @@
+import { BlockedUser } from 'src/blocked-user/entities/blocked-user.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('users')
@@ -33,6 +35,9 @@ export class User {
     onDelete: 'CASCADE',
   })
   profile: Profile;
+
+  @OneToMany(() => BlockedUser, (blockedUser) => blockedUser.blocker)
+  blockedUsers: BlockedUser[];
 
   @CreateDateColumn()
   createdAt: Date;

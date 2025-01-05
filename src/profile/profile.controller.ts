@@ -6,7 +6,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateProfileCommand } from './commands/update-profile.command';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { OwnershipGuard } from 'src/auth/guards/ownership.gaurd';
+import { OwnershipGuard } from 'src/auth/guards/ownership.guard';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))

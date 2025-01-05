@@ -24,8 +24,10 @@ import { WsExceptionFilter } from 'src/exceptions/ws-exception.filter';
 import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { FetchRecentMessagesDto } from './dto/fetch-recent-messages.dto';
-
-@WebSocketGateway({ cors: { origin: '*' } })
+import { RedisService } from 'src/redis/redis.service';
+import { BlockedUserService } from 'src/blocked-user/blocked-user.service';
+//TODO: Need for heavy clean up :)
+@WebSocketGateway({ cors: { origin: '*' }, namespace: 'private-messages' })
 @UseFilters(new WsExceptionFilter())
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -35,6 +37,8 @@ export class MessagesGateway
     private readonly userService: UserService,
     private readonly queryBus: QueryBus,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
+    private readonly blockedUserService: BlockedUserService,
   ) {}
 
   @WebSocketServer()
@@ -56,6 +60,17 @@ export class MessagesGateway
       client.data.user = decoded;
 
       client.join(decoded.sub);
+
+      const blockedUsers = await this.blockedUserService.getBlockedUsers(
+        decoded.sub,
+      );
+
+      const blockedUserIds = blockedUsers.map((user) => user.blocked.id);
+
+      await this.redisService.addMultipleToSet(
+        `blocked:${decoded.sub}`,
+        blockedUserIds,
+      );
     } catch (error) {
       console.error(`WebSocket Connection Error: ${error.message}`);
       client.disconnect();
@@ -105,7 +120,6 @@ export class MessagesGateway
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (errors) => new WsException(errors),
     }),
   )
   async handleSendMessage(
@@ -115,27 +129,24 @@ export class MessagesGateway
     try {
       const senderId = client.data.user.sub;
       const { receiverId, text } = createMessageDto;
-
-      const senderExists = await this.userService.findById(senderId);
-      if (!senderExists) {
-        throw new WsException('Unauthorized: Sender removed');
-      }
-
-      const receiverExists = await this.userService.findById(receiverId);
-      if (!receiverExists) {
-        throw new WsException('Failed: Receiver does not exist');
+      console.log('senderId:', senderId);
+      console.log('receiverId:', receiverId);
+      console.log('text:', text);
+      const isBlocked = await this.redisService.isMemberOfSet(
+        `blocked:${receiverId}`,
+        senderId,
+      );
+      if (isBlocked) {
+        throw new WsException('You are blocked by this user');
       }
 
       await this.commandBus.execute(
         new SendMessageCommand(senderId, receiverId, text),
       );
 
-      this.server.to(receiverId).emit('receiveMessage', {
-        senderId,
-        receiverId,
-        text,
-      });
-
+      this.server
+        .to(receiverId)
+        .emit('receiveMessage', { senderId, receiverId, text });
       client.emit('messageSent', {
         status: 'success',
         senderId,
@@ -146,5 +157,25 @@ export class MessagesGateway
       console.error('WebSocket Error:', error.message);
       throw new WsException(error.message || 'Message sending failed');
     }
+  }
+
+  @SubscribeMessage('blockUser')
+  async handleBlockUser(
+    @MessageBody() data: { blockerId: string; blockedId: string },
+  ) {
+    await this.redisService.addToSet(
+      `blocked:${data.blockerId}`,
+      data.blockedId,
+    );
+  }
+
+  @SubscribeMessage('unblockUser')
+  async handleUnblockUser(
+    @MessageBody() data: { blockerId: string; blockedId: string },
+  ) {
+    await this.redisService.removeFromSet(
+      `blocked:${data.blockerId}`,
+      data.blockedId,
+    );
   }
 }

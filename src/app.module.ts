@@ -14,6 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ProfileModule } from './profile/profile.module';
 import { CountryModule } from './country/country.module';
 import { CommandRunnerModule } from 'nest-commander';
+import { BlockedUserModule } from './blocked-user/blocked-user.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CommandRunnerModule } from 'nest-commander';
     ProfileModule,
     CountryModule,
     CommandRunnerModule,
+    BlockedUserModule,
   ],
   controllers: [AppController],
   providers: [

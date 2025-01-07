@@ -10,69 +10,60 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  UseFilters,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SendMessageCommand } from './commands/send-message.command';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { GetRecentMessagesQuery } from './queries/get-recent-messages.query';
-import { WsExceptionFilter } from 'src/exceptions/ws-exception.filter';
-import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { FetchRecentMessagesDto } from './dto/fetch-recent-messages.dto';
 import { RedisService } from 'src/redis/redis.service';
 import { BlockedUserService } from 'src/blocked-user/blocked-user.service';
-//TODO: Need for heavy clean up :)
+import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
+import { UseGuards, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config'; // ✅ Fixed missing import
+import { BaseWsGateway } from 'src/shared/websockets/BaseWsGateway';
+
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'private-messages' })
-@UseFilters(new WsExceptionFilter())
 export class MessagesGateway
+  extends BaseWsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly userService: UserService,
     private readonly queryBus: QueryBus,
-    private readonly jwtService: JwtService,
+    protected readonly jwtService: JwtService,
+    protected readonly configService: ConfigService,
     private readonly redisService: RedisService,
     private readonly blockedUserService: BlockedUserService,
-  ) {}
+  ) {
+    super(jwtService, configService);
+  }
 
   @WebSocketServer()
   server: Server;
 
   async handleConnection(client: Socket): Promise<void> {
     try {
-      const token = client.handshake.headers.authorization?.split(' ')[1];
-
-      if (!token) {
+      const userId = client.data.user?.sub;
+      if (!userId) {
         client.disconnect();
         return;
       }
 
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
+      client.join(userId);
+      Logger.log(`MessagesGateway: User connected ${userId}`);
 
-      client.data.user = decoded;
-
-      client.join(decoded.sub);
-
-      const blockedUsers = await this.blockedUserService.getBlockedUsers(
-        decoded.sub,
-      );
-
+      const blockedUsers =
+        await this.blockedUserService.getBlockedUsers(userId);
       const blockedUserIds = blockedUsers.map((user) => user.blocked.id);
 
       await this.redisService.addMultipleToSet(
-        `blocked:${decoded.sub}`,
+        `blocked:${userId}`,
         blockedUserIds,
       );
     } catch (error) {
-      console.error(`WebSocket Connection Error: ${error.message}`);
+      Logger.error(`WebSocket Connection Error: ${error.message}`);
       client.disconnect();
     }
   }
@@ -84,16 +75,8 @@ export class MessagesGateway
     }
   }
 
-  @SubscribeMessage('fetchRecentMessages')
   @UseGuards(WsAuthGuard)
-  @UsePipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      exceptionFactory: (errors) => new WsException(errors),
-    }),
-  )
+  @SubscribeMessage('fetchRecentMessages')
   async handleFetchRecentMessages(
     @MessageBody() data: FetchRecentMessagesDto,
     @ConnectedSocket() client: Socket,
@@ -108,20 +91,13 @@ export class MessagesGateway
 
       client.emit('recentMessages', messages);
     } catch (error) {
-      console.error('WebSocket Error:', error.message);
+      Logger.error('WebSocket Error:', error.message);
       throw new WsException(error.message || 'Failed to fetch messages');
     }
   }
 
-  @SubscribeMessage('sendMessage')
   @UseGuards(WsAuthGuard)
-  @UsePipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  )
+  @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @MessageBody() createMessageDto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
@@ -129,9 +105,7 @@ export class MessagesGateway
     try {
       const senderId = client.data.user.sub;
       const { receiverId, text } = createMessageDto;
-      console.log('senderId:', senderId);
-      console.log('receiverId:', receiverId);
-      console.log('text:', text);
+
       const isBlocked = await this.redisService.isMemberOfSet(
         `blocked:${receiverId}`,
         senderId,
@@ -154,28 +128,8 @@ export class MessagesGateway
         text,
       });
     } catch (error) {
-      console.error('WebSocket Error:', error.message);
+      Logger.error('WebSocket Error:', error.message);
       throw new WsException(error.message || 'Message sending failed');
     }
-  }
-
-  @SubscribeMessage('blockUser')
-  async handleBlockUser(
-    @MessageBody() data: { blockerId: string; blockedId: string },
-  ) {
-    await this.redisService.addToSet(
-      `blocked:${data.blockerId}`,
-      data.blockedId,
-    );
-  }
-
-  @SubscribeMessage('unblockUser')
-  async handleUnblockUser(
-    @MessageBody() data: { blockerId: string; blockedId: string },
-  ) {
-    await this.redisService.removeFromSet(
-      `blocked:${data.blockerId}`,
-      data.blockedId,
-    );
   }
 }

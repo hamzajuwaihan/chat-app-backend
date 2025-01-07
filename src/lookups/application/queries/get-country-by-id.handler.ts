@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetCountryByIdQuery } from './get-country-by-id.query';
-import { CountryService } from '../country.service';
-import { Country } from '../entities/country.entity';
+import { CountryService } from '../services/country.service';
+import { Country } from '../../domain/entities/country.entity';
 
 @QueryHandler(GetCountryByIdQuery)
 export class GetCountryByIdHandler

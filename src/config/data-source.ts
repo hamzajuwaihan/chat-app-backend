@@ -5,7 +5,10 @@ const dbConfig = databaseConfig();
 
 const AppDataSource = new DataSource({
   ...dbConfig,
-  entities: ['src/**/entities/*.entity.ts'],
+  entities: [
+    'src/**/entities/*.entity.ts',
+    'src/**/domain/entities/*.entity.ts',
+  ],
   migrations: ['src/database/migrations/*-migration.ts'],
   migrationsRun: true,
 } as DataSourceOptions);

@@ -1,4 +1,4 @@
-import { Country } from 'src/country/entities/country.entity';
+import { Country } from 'src/lookups/domain/entities/country.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   CreateDateColumn,

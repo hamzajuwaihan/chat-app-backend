@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import { WsException } from '@nestjs/websockets';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
@@ -13,20 +14,35 @@ export class WsAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const client: Socket = context.switchToWs().getClient<Socket>();
-    const token = client.handshake.headers.authorization?.split(' ')[1];
+    this.validateToken(client);
+    return true;
+  }
 
-    if (!token) {
-      throw new WsException('Unauthorized: Missing token');
-    }
-
+  private validateToken(client: Socket) {
     try {
+      const token = client.data.user?.token || client.handshake.auth?.token;
+
+      if (!token) {
+        Logger.warn(`Unauthorized WebSocket request: Missing token`);
+        client.disconnect();
+        throw new WsException('Unauthorized: Missing token');
+      }
+
       const jwtSecret = this.configService.get<string>('JWT_SECRET');
       const decoded = this.jwtService.verify(token, { secret: jwtSecret });
 
-      client.data.user = decoded;
-      client.join(decoded.sub);
-      return true;
+      if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
+        Logger.warn(`Unauthorized WebSocket request: Token expired`);
+        client.emit('authError', { message: 'Token expired' });
+        client.disconnect();
+        throw new WsException('Unauthorized: Token expired');
+      }
+
+      client.data.user = { ...decoded, token };
     } catch (error) {
+      Logger.error(`WebSocket Event Authorization Failed: ${error.message}`);
+      client.emit('authError', { message: error.message || 'Invalid token' });
+      client.disconnect();
       throw new WsException(
         `Unauthorized: ${error.message || 'Invalid token'}`,
       );

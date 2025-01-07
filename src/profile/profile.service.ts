@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './entities/profile.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,19 +15,19 @@ export class ProfileService {
     return this.profileRepository.save(profile);
   }
 
-  findAll() {
-    return `This action returns all profile`;
+  async getProfileByUserId(userId: string): Promise<Profile | null> {
+    return this.profileRepository.findOne({
+      where: { user: { id: userId } },
+      relations: {
+        country: true,
+      },
+    });
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} profile`;
-  }
-
-  update(id: number, updateProfileDto: UpdateProfileDto) {
-    return `This action updates a #${id} profile`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} profile`;
+  async update(profile: Profile) {
+    const updatedProfile = await this.profileRepository.save(profile);
+    return await this.profileRepository.findOne({
+      where: { id: updatedProfile.id },
+      relations: ['country'],
+    });
   }
 }

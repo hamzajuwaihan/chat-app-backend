@@ -14,7 +14,6 @@ export class CountryService {
   async findAll(filters: CountriesFilter): Promise<Country[]> {
     const queryBuilder = this.countryRepository.createQueryBuilder('country');
 
-    // Apply sorting only if `sortBy` is valid
     if (filters.sortBy) {
       queryBuilder.orderBy(
         `country.${filters.sortBy}`,

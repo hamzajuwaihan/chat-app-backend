@@ -1,16 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { LoginHandler } from './queries/login.handler';
-import { CqrsModule } from '@nestjs/cqrs';
-import { RegisterHandler } from './commands/register.handler';
-import { CreateGuestHandler } from './commands/create-guest.handler';
+import { AuthController } from './presentation/controllers/auth.controller';
+import { AuthService } from './application/services/auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
+import { CreateGuestHandler } from './application/commands/create-guest.handler';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './presentation/strategies/jwt.strategy';
+import { LoginHandler } from './application/queries/login.handler';
+import { LogoutHandler } from './application/commands/logout.handler';
+import { Module } from '@nestjs/common';
 import { RedisModule } from '../redis/redis.module';
-import { RefreshTokenHandler } from './queries/refresh-token.handler';
-import { LogoutHandler } from './commands/logout.handler';
+import { RefreshTokenHandler } from './application/queries/refresh-token.handler';
+import { RegisterHandler } from './application/commands/register.handler';
 import { UsersModule } from 'src/user/users.module';
 
 @Module({
@@ -31,12 +31,12 @@ import { UsersModule } from 'src/user/users.module';
   controllers: [AuthController],
   providers: [
     AuthService,
+    CreateGuestHandler,
     JwtStrategy,
     LoginHandler,
-    RegisterHandler,
-    CreateGuestHandler,
-    RefreshTokenHandler,
     LogoutHandler,
+    RefreshTokenHandler,
+    RegisterHandler,
   ],
   exports: [AuthService],
 })

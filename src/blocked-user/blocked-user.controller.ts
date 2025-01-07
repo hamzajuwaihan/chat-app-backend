@@ -11,10 +11,10 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { BlockUserCommand } from './commands/block-user.command';
 import { UnblockUserCommand } from './commands/unblock-user.command';
 import { AuthGuard } from '@nestjs/passport';
-import { OwnershipGuard } from 'src/auth/guards/ownership.guard';
+import { OwnershipGuard } from 'src/auth/presentation/guards/ownership.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { BlockUserParamDto } from './dto/blocked-user.dto';
-import { UuidParamDto } from 'src/common/dtos/uuid-param.dto';
+import { UuidParamDto } from 'src/shared/dtos/uuid-param.dto';
 import { GetBlockedUsersQuery } from './queries/get-blocked-users.query';
 
 @Controller('blocked-users')

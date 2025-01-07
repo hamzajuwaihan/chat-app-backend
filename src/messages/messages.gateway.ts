@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/application/services/user.service';
 import { SendMessageCommand } from './commands/send-message.command';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { GetRecentMessagesQuery } from './queries/get-recent-messages.query';
@@ -18,7 +18,7 @@ import { JwtService } from '@nestjs/jwt';
 import { FetchRecentMessagesDto } from './dto/fetch-recent-messages.dto';
 import { RedisService } from 'src/redis/redis.service';
 import { BlockedUserService } from 'src/blocked-user/blocked-user.service';
-import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
+import { WsAuthGuard } from 'src/auth/presentation/guards/ws-auth.guard';
 import { UseGuards, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config'; // ✅ Fixed missing import
 import { BaseWsGateway } from 'src/shared/websockets/BaseWsGateway';

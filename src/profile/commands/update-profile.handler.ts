@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Profile } from '../entities/profile.entity';
 import { UpdateProfileCommand } from './update-profile.command';
 import { ProfileService } from '../profile.service';
-import { CountryService } from 'src/country/country.service';
+import { CountryService } from 'src/lookups/application/services/country.service';
 
 @CommandHandler(UpdateProfileCommand)
 export class UpdateProfileHandler

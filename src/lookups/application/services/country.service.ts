@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { Country } from './entities/country.entity';
+import { Country } from '../../domain/entities/country.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CountriesFilter } from './filters/countries-filter.dto';
+import { CountriesFilter } from '../dto/countries-filter.dto';
 
 @Injectable()
 export class CountryService {

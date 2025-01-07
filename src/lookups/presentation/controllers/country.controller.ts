@@ -1,10 +1,14 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { CountriesFilter } from './filters/countries-filter.dto';
-import { Country } from './entities/country.entity';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { CountriesFilter } from '../../application/dto/countries-filter.dto';
+import { Country } from '../../domain/entities/country.entity';
 import { QueryBus } from '@nestjs/cqrs';
-import { GetCountriesQuery } from './queries/get-countries.query';
-import { GetCountryByIdQuery } from './queries/get-country-by-id.query';
-//TODO: Add Guard
+import { GetCountriesQuery } from '../../application/queries/get-countries.query';
+import { GetCountryByIdQuery } from '../../application/queries/get-country-by-id.query';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('country')
 export class CountryController {
   constructor(private readonly queryBus: QueryBus) {}

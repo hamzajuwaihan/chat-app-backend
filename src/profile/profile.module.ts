@@ -6,10 +6,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ProfileController } from './profile.controller';
 import { GetProfileByUserIdHandler } from './queries/get-profile-by-userId.handler';
 import { UpdateProfileHandler } from './commands/update-profile.handler';
-import { CountryModule } from 'src/country/country.module';
+import { LookupsModule } from 'src/lookups/lookups.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Profile]), CqrsModule, CountryModule],
+  imports: [TypeOrmModule.forFeature([Profile]), CqrsModule, LookupsModule],
   providers: [ProfileService, GetProfileByUserIdHandler, UpdateProfileHandler],
   exports: [ProfileService],
   controllers: [ProfileController],

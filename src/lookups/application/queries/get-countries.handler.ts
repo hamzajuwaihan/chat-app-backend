@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { CountryService } from '../country.service';
+import { CountryService } from '../services/country.service';
 import { GetCountriesQuery } from './get-countries.query';
-import { Country } from '../entities/country.entity';
+import { Country } from '../../domain/entities/country.entity';
 
 @QueryHandler(GetCountriesQuery)
 export class GetCountriesHandler implements IQueryHandler<GetCountriesQuery> {

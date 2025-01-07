@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Country } from '../entities/country.entity';
+import { Country } from '../../domain/entities/country.entity';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class CountriesFilter {

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as countryData from '../../database/data/country.json'; // Load JSON file
-import { Country } from 'src/country/entities/country.entity';
+import * as countryData from '../../../database/data/country.json';
+import { Country } from '../../domain/entities/country.entity';
 
 @Injectable()
 export class SeedService {
@@ -12,8 +12,6 @@ export class SeedService {
   ) {}
   async run() {
     console.log('🌍 Seeding countries...');
-
-    console.log('Loaded Country Data:', countryData); // Debug output
 
     const countryCount = await this.countryRepository.count();
     if (countryCount === 0) {

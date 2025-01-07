@@ -4,7 +4,7 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from 'src/user/domain/entities/user.entity';
 
 @Entity('blocked_users')
 export class BlockedUser {

@@ -11,7 +11,6 @@ import { RedisModule } from './redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { ProfileModule } from './profile/profile.module';
 import { CommandRunnerModule } from 'nest-commander';
 import { BlockedUserModule } from './blocked-user/blocked-user.module';
 import { LookupsModule } from './lookups/lookups.module';
@@ -32,7 +31,6 @@ import { LookupsModule } from './lookups/lookups.module';
         limit: 5,
       },
     ]),
-    ProfileModule,
     LookupsModule,
     CommandRunnerModule,
     BlockedUserModule,

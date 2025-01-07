@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { CountriesFilter } from '../../application/dto/countries-filter.dto';
+import { CountriesFilter } from '../dto/countries-filter.dto';
 import { Country } from '../../domain/entities/country.entity';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetCountriesQuery } from '../../application/queries/get-countries.query';

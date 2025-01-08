@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { UserService } from 'src/user/application/services/user.service';
+import { UsersService } from 'src/users/application/services/user.service';
 import { RegisterCommand } from './register.command';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/app/infrastructure/redis/redis.service';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
   ) {}
@@ -18,14 +18,14 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password, nickname } = command;
 
-    const existingUser = await this.userService.findByEmail(email);
+    const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new Error('Email already registered');
     }
 
     const hashedPassword = await argon2.hash(password);
 
-    const newUser = await this.userService.createUser({
+    const newUser = await this.usersService.createUser({
       email,
       password_hash: hashedPassword,
       nickname,

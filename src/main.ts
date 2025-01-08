@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { setupSwagger } from './config/swagger.config';
+import { AppModule } from './app/app.module';
+import { setupSwagger } from './app/infrastructure/config/swagger.config';
 import { ValidationPipe } from '@nestjs/common';
 
 declare const module: any;

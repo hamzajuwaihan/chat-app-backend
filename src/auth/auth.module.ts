@@ -8,10 +8,10 @@ import { JwtStrategy } from './presentation/strategies/jwt.strategy';
 import { LoginHandler } from './application/queries/login.handler';
 import { LogoutHandler } from './application/commands/logout.handler';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '../redis/redis.module';
+import { RedisModule } from '../app/infrastructure/redis/redis.module';
 import { RefreshTokenHandler } from './application/queries/refresh-token.handler';
 import { RegisterHandler } from './application/commands/register.handler';
-import { UsersModule } from 'src/user/users.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [

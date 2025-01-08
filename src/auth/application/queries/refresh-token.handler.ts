@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/app/infrastructure/redis/redis.service';
 import { RefreshTokenQuery } from './refresh-token.query';
 import { UnauthorizedException } from '@nestjs/common';
 

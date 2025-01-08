@@ -1,13 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateGuestCommand } from './create-guest.command';
-import { UserService } from 'src/user/application/services/user.service';
-import { RedisService } from 'src/redis/redis.service';
+import { UsersService } from 'src/users/application/services/user.service';
+import { RedisService } from 'src/app/infrastructure/redis/redis.service';
 
 @CommandHandler(CreateGuestCommand)
 export class CreateGuestHandler implements ICommandHandler<CreateGuestCommand> {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService, // Added RedisService for refresh token storage
   ) {}
@@ -17,7 +17,7 @@ export class CreateGuestHandler implements ICommandHandler<CreateGuestCommand> {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { nickname } = command;
 
-    const guest = await this.userService.createGuest(nickname);
+    const guest = await this.usersService.createGuest(nickname);
 
     const payload = { sub: guest.id, isGuest: true };
 

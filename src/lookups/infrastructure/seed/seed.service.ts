@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as countryData from './data/country.json';
@@ -11,15 +11,15 @@ export class SeedService {
     private readonly countryRepository: Repository<Country>,
   ) {}
   async run() {
-    console.log('🌍 Seeding countries...');
+    Logger.log('🌍 Seeding countries...');
 
     const countryCount = await this.countryRepository.count();
     if (countryCount === 0) {
-      console.log(`🌍 Seeding ${countryData.length} countries...`);
+      Logger.log(`🌍 Seeding ${countryData.length} countries...`);
       await this.countryRepository.save(countryData);
-      console.log('✅ Countries seeded successfully.');
+      Logger.log('✅ Countries seeded successfully.');
     } else {
-      console.log('⚠️ Countries already exist. Skipping seeding.');
+      Logger.log('⚠️ Countries already exist. Skipping seeding.');
     }
   }
 }

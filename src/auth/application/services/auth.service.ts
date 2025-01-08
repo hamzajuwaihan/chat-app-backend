@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { User } from 'src/user/domain/entities/user.entity';
-import { UserService } from 'src/user/application/services/user.service';
+import { User } from 'src/users/domain/entities/user.entity';
+import { UsersService } from 'src/users/application/services/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -16,7 +16,7 @@ export class AuthService {
    */
   async register(user: User): Promise<{ accessToken: string }> {
     user.password_hash = await argon2.hash(user.password_hash);
-    const savedUser = await this.userService.createUser(user);
+    const savedUser = await this.usersService.createUser(user);
 
     const payload = { sub: savedUser.id, email: savedUser.email };
     const accessToken = await this.jwtService.signAsync(payload);
@@ -31,7 +31,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ accessToken: string }> {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.usersService.findByEmail(email);
     if (!user || !user.password_hash) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -51,7 +51,7 @@ export class AuthService {
    * Create a guest session
    */
   async createGuest(user: User): Promise<{ accessToken: string }> {
-    const guest = await this.userService.createGuest(user.nickname);
+    const guest = await this.usersService.createGuest(user.nickname);
 
     const payload = { sub: guest.id, isGuest: true };
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -65,13 +65,13 @@ export class AuthService {
    * Validate guest session
    */
   async validateGuestSession(userId: string): Promise<void> {
-    await this.userService.validateGuestSession(userId);
+    await this.usersService.validateGuestSession(userId);
   }
 
   /**
    * Validate user by JWT
    */
   async validateUser(userId: string): Promise<User> {
-    return await this.userService.findById(userId);
+    return await this.usersService.findById(userId);
   }
 }

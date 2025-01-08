@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { RedisService } from 'src/redis/redis.service';
-import { UserService } from 'src/user/application/services/user.service';
+import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { UsersService } from 'src/users/application/services/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly redisService: RedisService,
   ) {
     super({
@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.userService.findById(payload.sub);
+    const user = await this.usersService.findById(payload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found or inactive');
     }

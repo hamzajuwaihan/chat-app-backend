@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -12,9 +12,8 @@ import { RefreshTokenQuery } from '../../application/queries/refresh-token.query
 import { RegisterCommand } from '../../application/commands/register.command';
 import { RegisterDto } from '../dtos/register.dto';
 
-@ApiTags('auth')
 @ApiBearerAuth()
-@Controller('auth')
+@Controller('Auth')
 export class AuthController {
   constructor(
     private readonly queryBus: QueryBus,

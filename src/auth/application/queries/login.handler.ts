@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { LoginQuery } from './login.query';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/app/infrastructure/redis/redis.service';
 import { UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/application/services/user.service';
+import { UsersService } from 'src/users/application/services/user.service';
 import * as argon2 from 'argon2';
 
 const MAX_ATTEMPTS = 5;
@@ -14,7 +14,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
   constructor(
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
   ) {}
 
   async execute(
@@ -22,7 +22,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password } = query;
 
-    const user = await this.userService.findByEmail(email);
+    const user = await this.usersService.findByEmail(email);
     if (!user) throw new UnauthorizedException('Invalid email or password');
 
     const lockKey = `failed_attempts:${user.id}`;

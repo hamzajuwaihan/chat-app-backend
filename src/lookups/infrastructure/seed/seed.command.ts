@@ -10,8 +10,8 @@ export class SeedCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    console.log('🌱 Running database seeder...');
+    Logger.log('🌱 Running database seeder...');
     await this.seedService.run();
-    console.log('✅ Seeding completed.');
+    Logger.log('✅ Seeding completed.');
   }
 }

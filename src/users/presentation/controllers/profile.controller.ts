@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UuidParamDto } from 'src/shared/dtos/uuid-param.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { OwnershipGuard } from 'src/auth/presentation/guards/ownership.guard';
+import { OwnershipGuard } from 'src/app/presentation/guards/ownership.guard';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { UpdateProfileCommand } from 'src/users/application/commands/update-profile.command';
 import { GetProfileByUserIdQuery } from 'src/users/application/queries/get-profile-by-userId.query';

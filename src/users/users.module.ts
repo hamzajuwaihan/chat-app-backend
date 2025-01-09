@@ -1,4 +1,3 @@
-import { BlockedUserController } from './presentation/controllers/blocked-user.controller';
 import { BlockUserHandler } from './application/commands/block-user.handler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GetBlockedUsersHandler } from './application/queries/get-blocked-users.handler';
@@ -17,14 +16,22 @@ import { User } from './domain/entities/user.entity';
 import { UsersController } from './presentation/controllers/users.controller';
 import { UsersService } from './application/services/user.service';
 import { UserBlockingService } from './application/services/user-blocking.service';
+import { UserFeaturePermissionController } from './presentation/controllers/user-feature-permission.controller';
+import { UserFeaturePermission } from './domain/entities/user-feature-permission.entity';
+import { UserFeaturePermissionService } from './application/services/user-feature-permission.service';
+import { UserFeaturePermissionRepository } from './infrastructure/repositories/user-feature-permission.repository';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Profile]),
+    TypeOrmModule.forFeature([User, Profile, UserFeaturePermission]),
     CqrsModule,
     LookupsModule,
     RedisModule,
   ],
-  controllers: [UsersController, ProfileController, BlockedUserController],
+  controllers: [
+    UsersController,
+    ProfileController,
+    UserFeaturePermissionController,
+  ],
   providers: [
     UserBlockingService,
     BlockUserHandler,
@@ -35,6 +42,8 @@ import { UserBlockingService } from './application/services/user-blocking.servic
     UnblockUserHandler,
     UpdateProfileHandler,
     UsersService,
+    UserFeaturePermissionService,
+    UserFeaturePermissionRepository,
   ],
   exports: [UsersService, UserBlockingService],
 })

@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { RedisService } from 'src/app/infrastructure/redis/redis.service';
 import { UsersService } from 'src/users/application/services/user.service';
+import { User } from 'src/users/domain/entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: any): Promise<User> {
     const user = await this.usersService.findById(payload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found or inactive');
@@ -30,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'Token has been revoked. Please log in again.',
       );
     }
-
-    return { userId: user.id, username: user.nickname, isGuest: user.is_guest };
+    delete user['password_hash'];
+    return user;
   }
 }

@@ -18,12 +18,12 @@ export class ProfileController {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Get(':id/profile')
+  @Get('/:id/profile')
   async getProfile(@Param() params: UuidParamDto) {
     return await this.queryBus.execute(new GetProfileByUserIdQuery(params.id));
   }
 
-  @Patch(':id/profile')
+  @Patch('/:id/profile')
   @UseGuards(OwnershipGuard)
   async updateProfile(
     @Param() params: UuidParamDto,

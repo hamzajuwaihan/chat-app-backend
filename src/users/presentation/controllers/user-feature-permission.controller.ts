@@ -1,59 +1,54 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
-import { UserFeaturePermissionService } from 'src/users/application/services/user-feature-permission.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { PermissionType } from 'src/users/domain/shared/enumerations';
+import { UserFeaturePermissionService } from 'src/users/application/services/user-feature-permission.service';
+import { OwnershipGuard } from 'src/app/presentation/guards/ownership.guard';
 
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('permissions')
 export class UserFeaturePermissionController {
   constructor(
     private readonly permissionService: UserFeaturePermissionService,
   ) {}
 
-  @Get(':ownerId/:userId/:feature')
-  async checkPermission(
-    @Param('ownerId') ownerId: string,
-    @Param('userId') userId: string,
-    @Param('feature') feature: string,
-  ) {
-    return await this.permissionService.canUserAccessFeature(
-      ownerId,
-      userId,
-      feature as PermissionType,
-    );
-  }
-
   @Get('user/:userId')
   async getPermissionsForUser(@Param('userId') userId: string) {
     return await this.permissionService.getAllPermissionsForUser(userId);
   }
 
-  @Get('owner/:ownerId/:feature')
-  async getUsersAllowedByUser(
-    @Param('ownerId') ownerId: string,
-    @Param('feature') feature: string,
-  ) {
-    return await this.permissionService.getAllUsersAllowedByUser(
-      ownerId,
-      feature as PermissionType,
-    );
-  }
-
+  @UseGuards(OwnershipGuard)
   @Post()
   async grantPermission(
-    @Body() body: { ownerId: string; userId: string; feature: string },
+    @Req() req,
+    @Body() body: { userId: string; feature: string },
   ) {
+    const ownerId = req.user.id;
     return await this.permissionService.grantUserFeaturePermission(
-      body.ownerId,
+      ownerId,
       body.userId,
       body.feature as PermissionType,
     );
   }
-
+  @UseGuards(OwnershipGuard)
   @Delete()
   async revokePermission(
-    @Body() body: { ownerId: string; userId: string; feature: string },
+    @Req() req,
+    @Body() body: { userId: string; feature: string },
   ) {
+    const ownerId = req.user.id;
     return await this.permissionService.revokeUserFeaturePermission(
-      body.ownerId,
+      ownerId,
       body.userId,
       body.feature as PermissionType,
     );

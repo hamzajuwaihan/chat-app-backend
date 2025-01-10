@@ -63,6 +63,7 @@ export class UserBlockingService {
   async getBlockedUsers(
     userId: string,
   ): Promise<Pick<User, 'id' | 'nickname'>[]> {
+    //FIXME: switch to findOneOrFail and handle EntityNotFoundError in an exception handler/filter or return empty array
     const user = await this.userRepo.findOne({
       where: { id: userId },
       relations: ['blockedUsers'],

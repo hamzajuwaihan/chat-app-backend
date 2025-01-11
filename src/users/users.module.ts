@@ -20,6 +20,7 @@ import { UserFeaturePermissionController } from './presentation/controllers/user
 import { UserFeaturePermission } from './domain/entities/user-feature-permission.entity';
 import { UserFeaturePermissionService } from './application/services/user-feature-permission.service';
 import { UserFeaturePermissionRepository } from './infrastructure/repositories/user-feature-permission.repository';
+import { PrivacySettingsUpdatedHandler } from './application/events/privacy-settings-update.handler';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Profile, UserFeaturePermission]),
@@ -44,6 +45,7 @@ import { UserFeaturePermissionRepository } from './infrastructure/repositories/u
     UsersService,
     UserFeaturePermissionService,
     UserFeaturePermissionRepository,
+    PrivacySettingsUpdatedHandler,
   ],
   exports: [UsersService, UserBlockingService],
 })

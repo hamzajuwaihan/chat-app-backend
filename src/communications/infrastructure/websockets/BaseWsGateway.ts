@@ -1,7 +1,7 @@
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { OnGatewayInit } from '@nestjs/websockets';
 import { WebSocketGateway, WsException } from '@nestjs/websockets';
-import { WsExceptionFilter } from 'src/app/presentation/exceptions/ws-exception.filter';
+import { WsExceptionFilter } from 'src/app/presentation/filters/ws-exception.filter';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';

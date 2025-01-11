@@ -39,4 +39,14 @@ export class UserFeaturePermissionService {
   ) {
     return await this.permissionRepo.revokePermission(ownerId, userId, feature);
   }
+
+  async revokeAllPermissionsForUser(
+    ownerId: string,
+    permissionTypes: PermissionType[],
+  ): Promise<void> {
+    await this.permissionRepo.bulkRevokePermissionsForUser(
+      ownerId,
+      permissionTypes,
+    );
+  }
 }

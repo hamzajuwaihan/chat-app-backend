@@ -27,15 +27,15 @@ export class UserFeaturePermissionController {
     return await this.permissionService.getAllPermissionsForUser(userId);
   }
 
-  @UseGuards(OwnershipGuard)
   @Post()
   async grantPermission(
     @Req() req,
     @Body() body: { userId: string; feature: string },
   ) {
-    const ownerId = req.user.id;
+    const userId = req.user.id;
+
     return await this.permissionService.grantUserFeaturePermission(
-      ownerId,
+      userId,
       body.userId,
       body.feature as PermissionType,
     );

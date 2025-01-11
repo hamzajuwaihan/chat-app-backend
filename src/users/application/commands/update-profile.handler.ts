@@ -3,6 +3,8 @@ import { Profile } from '../../domain/entities/profile.entity';
 import { UpdateProfileCommand } from './update-profile.command';
 import { CountryService } from 'src/lookups/application/services/country.service';
 import { ProfileService } from '../services/profile.service';
+import { plainToInstance } from 'class-transformer';
+import { UserStatus } from 'src/users/domain/shared/enumerations';
 
 @CommandHandler(UpdateProfileCommand)
 export class UpdateProfileHandler
@@ -16,13 +18,11 @@ export class UpdateProfileHandler
   async execute(command: UpdateProfileCommand): Promise<Profile> {
     const { userId, updateProfileDto } = command;
 
-    const profile = await this.profileService.getProfileByUserId(userId);
+    const profile = plainToInstance(Profile, updateProfileDto);
 
-    if (!profile) {
-      throw new Error('Profile not found');
+    if (updateProfileDto.status) {
+      profile.status = updateProfileDto.status as unknown as UserStatus;
     }
-
-    Object.assign(profile, updateProfileDto);
 
     if (updateProfileDto.countryId) {
       const country = await this.countryService.findOne(
@@ -31,6 +31,6 @@ export class UpdateProfileHandler
       profile.country = country || null;
     }
 
-    return await this.profileService.update(profile);
+    return await this.profileService.update(userId, profile);
   }
 }

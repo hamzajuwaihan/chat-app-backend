@@ -88,4 +88,16 @@ export class UserFeaturePermissionRepository extends Repository<UserFeaturePermi
     }
     return false;
   }
+
+  async bulkRevokePermissionsForUser(
+    ownerId: string,
+    permissionTypes: PermissionType[],
+  ): Promise<void> {
+    await this.createQueryBuilder()
+      .delete()
+      .from(UserFeaturePermission)
+      .where('user_id = :ownerId', { ownerId })
+      .andWhere('permissionType IN (:...permissionTypes)', { permissionTypes })
+      .execute();
+  }
 }

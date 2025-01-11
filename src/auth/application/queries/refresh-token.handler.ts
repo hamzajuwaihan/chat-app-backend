@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 import { RefreshTokenQuery } from './refresh-token.query';
 import { UnauthorizedException } from '@nestjs/common';
 
@@ -8,7 +8,7 @@ import { UnauthorizedException } from '@nestjs/common';
 export class RefreshTokenHandler implements IQueryHandler<RefreshTokenQuery> {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(query: RefreshTokenQuery): Promise<{ accessToken: string }> {
@@ -22,7 +22,7 @@ export class RefreshTokenHandler implements IQueryHandler<RefreshTokenQuery> {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const storedToken = await this.redisService.get(
+    const storedToken = await this.cacheService.get(
       `refresh_token:${payload.sub}`,
     );
     if (!storedToken || storedToken !== refreshToken) {

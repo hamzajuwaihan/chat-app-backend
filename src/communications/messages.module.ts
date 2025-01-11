@@ -8,7 +8,7 @@ import { MessagesGateway } from './presentation/gateways/messages.gateway';
 import { JwtModule } from '@nestjs/jwt';
 import { GetRecentMessagesHandler } from './application/queries/get-recent-messages.handler';
 import { UsersModule } from 'src/users/users.module';
-import { RedisModule } from 'src/app/infrastructure/redis/redis.module';
+import { CacheModule } from 'src/app/infrastructure/cache/cache.module';
 import { UserBlockedEvent } from 'src/users/application/events/user-blocked.event';
 import { UserUnBlockedHandler } from './application/events/handlers/user-unblocked.handler';
 import { MessagesController } from './presentation/controllers/messages.controller';
@@ -23,7 +23,7 @@ import { SendMessageHandler } from './application/commands/send-message.handler'
       signOptions: { expiresIn: '1h' },
     }),
     UsersModule,
-    RedisModule,
+    CacheModule,
   ],
   controllers: [MessagesController],
   providers: [

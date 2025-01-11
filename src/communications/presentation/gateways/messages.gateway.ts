@@ -14,7 +14,7 @@ import { CreateMessageDto } from '../dto/create-message.dto';
 import { GetRecentMessagesQuery } from '../../application/queries/get-recent-messages.query';
 import { JwtService } from '@nestjs/jwt';
 import { FetchRecentMessagesDto } from '../dto/fetch-recent-messages.dto';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 import { WsAuthGuard } from 'src/communications/presentation/guards/ws-auth.guard';
 import { UseGuards, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -32,7 +32,7 @@ export class MessagesGateway
     private readonly queryBus: QueryBus,
     protected readonly jwtService: JwtService,
     protected readonly configService: ConfigService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
     private readonly userBlockingService: UserBlockingService,
   ) {
     super(jwtService, configService);
@@ -57,7 +57,7 @@ export class MessagesGateway
         await this.userBlockingService.getBlockedUsers(userId);
       const blockedUserIds = blockedUsers.map((user) => user.id);
 
-      await this.redisService.addMultipleToSet(
+      await this.cacheService.addMultipleToSet(
         `blocked:${userId}`,
         blockedUserIds,
       );
@@ -105,7 +105,7 @@ export class MessagesGateway
       const senderId = client.data.user.sub;
       const { receiverId, text } = createMessageDto;
 
-      const isBlocked = await this.redisService.isMemberOfSet(
+      const isBlocked = await this.cacheService.isMemberOfSet(
         `blocked:${receiverId}`,
         senderId,
       );

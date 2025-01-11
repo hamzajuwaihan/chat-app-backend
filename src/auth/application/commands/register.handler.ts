@@ -3,14 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { UsersService } from 'src/users/application/services/user.service';
 import { RegisterCommand } from './register.command';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(
@@ -43,7 +43,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
       expiresIn: '7d',
     });
 
-    await this.redisService.set(
+    await this.cacheService.set(
       `refresh_token:${newUser.id}`,
       refreshToken,
       604800,

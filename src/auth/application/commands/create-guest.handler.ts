@@ -2,14 +2,14 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateGuestCommand } from './create-guest.command';
 import { UsersService } from 'src/users/application/services/user.service';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 
 @CommandHandler(CreateGuestCommand)
 export class CreateGuestHandler implements ICommandHandler<CreateGuestCommand> {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService, // Added RedisService for refresh token storage
+    private readonly cacheService: CacheService, // Added CacheService for refresh token storage
   ) {}
 
   async execute(
@@ -31,7 +31,7 @@ export class CreateGuestHandler implements ICommandHandler<CreateGuestCommand> {
       expiresIn: '3d',
     });
 
-    await this.redisService.set(
+    await this.cacheService.set(
       `refresh_token:${guest.id}`,
       refreshToken,
       259200,

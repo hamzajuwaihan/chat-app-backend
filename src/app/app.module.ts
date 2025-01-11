@@ -5,7 +5,7 @@ import { LoggingMiddleware } from './presentation/middleware/logging.middleware'
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { MessagesModule } from '../communications/messages.module';
-import { RedisModule } from './infrastructure/redis/redis.module';
+import { CacheModule } from './infrastructure/cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -22,7 +22,7 @@ import { HttpModule } from '@nestjs/axios';
     AuthModule,
     UsersModule,
     MessagesModule,
-    RedisModule,
+    CacheModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([
       {

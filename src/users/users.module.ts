@@ -8,7 +8,7 @@ import { Module } from '@nestjs/common';
 import { Profile } from './domain/entities/profile.entity';
 import { ProfileController } from './presentation/controllers/profile.controller';
 import { ProfileService } from './application/services/profile.service';
-import { RedisModule } from 'src/app/infrastructure/redis/redis.module';
+import { CacheModule } from 'src/app/infrastructure/cache/cache.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UnblockUserHandler } from './application/commands/unblock-user.handler';
 import { UpdateProfileHandler } from './application/commands/update-profile.handler';
@@ -26,7 +26,7 @@ import { PrivacySettingsUpdatedHandler } from './application/events/privacy-sett
     TypeOrmModule.forFeature([User, Profile, UserFeaturePermission]),
     CqrsModule,
     LookupsModule,
-    RedisModule,
+    CacheModule,
   ],
   controllers: [
     UsersController,

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { LoginQuery } from './login.query';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/application/services/user.service';
 import * as argon2 from 'argon2';
@@ -13,7 +13,7 @@ const LOCK_TIME = 300;
 export class LoginHandler implements IQueryHandler<LoginQuery> {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -26,7 +26,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
     if (!user) throw new UnauthorizedException('Invalid email or password');
 
     const lockKey = `failed_attempts:${user.id}`;
-    const attempts = await this.redisService.get(lockKey);
+    const attempts = await this.cacheService.get(lockKey);
 
     if (attempts && parseInt(attempts) >= MAX_ATTEMPTS) {
       throw new UnauthorizedException('Account locked. Try again later.');
@@ -34,7 +34,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
 
     const isPasswordValid = await argon2.verify(user.password_hash, password);
     if (!isPasswordValid) {
-      await this.redisService.set(
+      await this.cacheService.set(
         lockKey,
         ((parseInt(attempts) || 0) + 1).toString(),
         LOCK_TIME,
@@ -42,7 +42,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    await this.redisService.del(lockKey);
+    await this.cacheService.del(lockKey);
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -52,7 +52,7 @@ export class LoginHandler implements IQueryHandler<LoginQuery> {
       expiresIn: '7d',
     });
 
-    await this.redisService.set(
+    await this.cacheService.set(
       `refresh_token:${user.id}`,
       refreshToken,
       604800,

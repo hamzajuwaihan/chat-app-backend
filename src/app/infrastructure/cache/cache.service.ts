@@ -3,30 +3,30 @@ import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class RedisService {
+export class CacheService {
   public client: Redis;
   private isHealthy: boolean = false;
 
   constructor(private readonly configService: ConfigService) {
     this.client = new Redis({
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
+      host: this.configService.get<string>('CACHE_HOST', 'localhost'),
+      port: this.configService.get<number>('CACHE_PORT', 6379),
     });
 
     this.client.on('connect', () => {
-      Logger.log('✅ Connected to Redis');
+      Logger.log('✅ Connected to Valkey (Cache)');
       this.isHealthy = true;
     });
     this.client.on('error', (err) => {
-      console.error('❌ Redis error:', err);
+      console.error('❌ Valkey error:', err);
       this.isHealthy = false;
     });
     this.client.on('close', () => {
-      Logger.log('Redis connection closed');
+      Logger.log('Valkey connection closed');
       this.isHealthy = false;
     });
     this.client.on('reconnecting', () => {
-      Logger.log('Reconnecting to Redis...');
+      Logger.log('Reconnecting to Valkey...');
       this.isHealthy = false;
     });
   }
@@ -66,14 +66,14 @@ export class RedisService {
     if (values.length === 0) return;
     return this.client.sadd(key, ...values);
   }
-  async isRedisHealthy(): Promise<boolean> {
+  async isValkeyHealthy(): Promise<boolean> {
     if (this.isHealthy) {
       try {
         await this.client.ping();
         return true;
       } catch (error) {
         this.isHealthy = false;
-        console.error('Redis ping failed:', error);
+        console.error('Valkey ping failed:', error);
         return false;
       }
     }

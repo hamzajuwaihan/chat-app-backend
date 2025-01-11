@@ -1,6 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UnblockUserCommand } from './unblock-user.command';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 import { UserBlockingService } from '../services/user-blocking.service';
 import { UserUnBlockedEvent } from '../events/user-unblocked.event';
 
@@ -8,7 +8,7 @@ import { UserUnBlockedEvent } from '../events/user-unblocked.event';
 export class UnblockUserHandler implements ICommandHandler<UnblockUserCommand> {
   constructor(
     private readonly userBlockingService: UserBlockingService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -16,7 +16,7 @@ export class UnblockUserHandler implements ICommandHandler<UnblockUserCommand> {
     const { blockerId, blockedId } = command;
 
     await this.userBlockingService.unblockUser(blockerId, blockedId);
-    await this.redisService.removeFromSet(`blocked:${blockerId}`, blockedId);
+    await this.cacheService.removeFromSet(`blocked:${blockerId}`, blockedId);
 
     this.eventBus.publish(new UserUnBlockedEvent(blockerId, blockedId));
   }

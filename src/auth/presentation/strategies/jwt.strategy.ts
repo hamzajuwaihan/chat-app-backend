@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 import { UsersService } from 'src/users/application/services/user.service';
 import { User } from 'src/users/domain/entities/user.entity';
 
@@ -9,7 +9,7 @@ import { User } from 'src/users/domain/entities/user.entity';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly usersService: UsersService,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found or inactive');
     }
 
-    const tokenExists = await this.redisService.get(`refresh_token:${user.id}`);
+    const tokenExists = await this.cacheService.get(`refresh_token:${user.id}`);
 
     if (!tokenExists) {
       throw new UnauthorizedException(

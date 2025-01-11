@@ -5,7 +5,7 @@ import {
   TypeOrmHealthIndicator,
   HealthCheck,
 } from '@nestjs/terminus';
-import { RedisService } from 'src/app/infrastructure/redis/redis.service';
+import { CacheService } from 'src/app/infrastructure/cache/cache.service';
 
 @Controller('health')
 export class HealthController {
@@ -13,7 +13,7 @@ export class HealthController {
     private health: HealthCheckService,
     private http: HttpHealthIndicator,
     private db: TypeOrmHealthIndicator,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {}
 
   @Get()
@@ -23,10 +23,10 @@ export class HealthController {
       async () => await this.http.pingCheck('self', 'http://localhost:3000/'),
       async () => await this.db.pingCheck('database'),
       async () => {
-        const isHealthy = await this.redisService.isRedisHealthy();
+        const isHealthy = await this.cacheService.isValkeyHealthy();
         return isHealthy
-          ? { redis: { status: 'up' } }
-          : { redis: { status: 'down' } };
+          ? { valkey: { status: 'up' } }
+          : { valkey: { status: 'down' } };
       },
     ]);
   }

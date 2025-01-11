@@ -1,13 +1,13 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Message } from '../../domain/entities/message.entity';
+import { PrivateMessage } from '../../domain/entities/private-message.entity';
 import { GetMessagesQuery } from './get-message.query';
-import { MessagesService } from '../services/messages.service';
+import { PrivateMessagesService } from '../services/private-message.service';
 
 @QueryHandler(GetMessagesQuery)
 export class GetMessagesHandler implements IQueryHandler<GetMessagesQuery> {
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(private readonly messagesService: PrivateMessagesService) {}
 
-  async execute(query: GetMessagesQuery): Promise<Message[]> {
+  async execute(query: GetMessagesQuery): Promise<PrivateMessage[]> {
     const { senderId, receiverId, before, limit } = query;
 
     return await this.messagesService.findAllBetweenUsers(

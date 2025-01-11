@@ -7,8 +7,10 @@ import {
   OneToOne,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Profile } from 'src/users/domain/entities/profile.entity';
+import { RoomMembership } from '../../../rooms/domain/entities/room-membership.entity';
 
 @Entity('users')
 export class User {
@@ -43,6 +45,11 @@ export class User {
     inverseJoinColumn: { name: 'blocked_id', referencedColumnName: 'id' },
   })
   blockedUsers: User[];
+
+  @OneToMany(() => RoomMembership, (membership) => membership.user, {
+    cascade: true,
+  })
+  memberships: RoomMembership[];
 
   @CreateDateColumn()
   createdAt: Date;

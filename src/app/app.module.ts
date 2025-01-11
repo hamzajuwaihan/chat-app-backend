@@ -15,6 +15,7 @@ import { DatabaseModule } from './infrastructure/database/database.module';
 import { HealthController } from './presentation/controllers/health.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
+import { RoomsModule } from 'src/rooms/rooms.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HttpModule } from '@nestjs/axios';
     CommandRunnerModule,
     TerminusModule,
     HttpModule,
+    RoomsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

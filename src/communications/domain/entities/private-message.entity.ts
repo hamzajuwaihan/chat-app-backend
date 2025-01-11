@@ -1,13 +1,13 @@
-import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MessageType } from '../shared/enumerations';
 
-@Entity('messages')
-export class Message {
+@Entity('private_messages')
+export class PrivateMessage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,7 +20,9 @@ export class Message {
   @Column({ type: 'text' })
   text: string;
 
+  @Column({ type: 'enum', enum: MessageType, default: MessageType.TEXT })
+  message_type: MessageType;
+
   @CreateDateColumn()
-  @Exclude()
   createdAt: Date;
 }

@@ -1,16 +1,20 @@
 import { Type } from 'class-transformer';
 import {
   IsDate,
+  IsEnum,
   IsNumber,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
+  Min,
 } from 'class-validator';
+import { PrivacySettingTypeDto, UserStatusDto } from './enums.dto';
 
 export class UpdateProfileDto {
   @IsOptional()
   @IsNumber()
+  @Min(18, { message: 'Age must be at least 18' })
   age?: number;
 
   @IsOptional()
@@ -25,6 +29,19 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsObject()
   settings?: Record<string, any>;
+
+  @IsOptional()
+  @IsObject()
+  privacySettings?: {
+    allowPrivateMessages?: PrivacySettingTypeDto;
+    allowConversationRequests?: boolean;
+    mediaReception?: PrivacySettingTypeDto;
+    invisibleMode?: boolean;
+  };
+
+  @IsOptional()
+  @IsEnum(UserStatusDto, { message: 'Invalid status value' })
+  status?: UserStatusDto;
 
   @IsOptional()
   @IsUUID()

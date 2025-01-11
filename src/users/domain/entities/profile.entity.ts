@@ -1,15 +1,16 @@
-import { Country } from 'src/lookups/domain/entities/country.entity';
-import { User } from 'src/users/domain/entities/user.entity';
 import {
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Column,
-  JoinColumn,
   OneToOne,
+  JoinColumn,
   ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { User } from 'src/users/domain/entities/user.entity';
+import { Country } from 'src/lookups/domain/entities/country.entity';
+import { PrivacySettingType, UserStatus } from '../shared/enumerations';
 
 @Entity('profiles')
 export class Profile {
@@ -28,13 +29,30 @@ export class Profile {
   @Column({ type: 'json', nullable: true })
   settings: object;
 
-  @Column({ type: 'json', nullable: true })
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: {
+      allowPrivateMessages: PrivacySettingType.ALL,
+      allowConversationRequests: true,
+      mediaReception: PrivacySettingType.ALL,
+      invisibleMode: false,
+    },
+  })
   privacySettings: {
-    allowPrivateMessages: boolean;
+    allowPrivateMessages: PrivacySettingType;
     allowConversationRequests: boolean;
-    mediaReception: 'all' | 'friends-only' | 'none';
+    mediaReception: PrivacySettingType;
     invisibleMode: boolean;
   };
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.AVAILABLE,
+    nullable: true,
+  })
+  status: UserStatus | null;
 
   @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

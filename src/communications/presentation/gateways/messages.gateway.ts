@@ -15,7 +15,7 @@ import { GetRecentMessagesQuery } from '../../application/queries/get-recent-mes
 import { JwtService } from '@nestjs/jwt';
 import { FetchRecentMessagesDto } from '../dto/fetch-recent-messages.dto';
 import { RedisService } from 'src/app/infrastructure/redis/redis.service';
-import { WsAuthGuard } from 'src/auth/presentation/guards/ws-auth.guard';
+import { WsAuthGuard } from 'src/communications/presentation/guards/ws-auth.guard';
 import { UseGuards, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BaseWsGateway } from 'src/communications/infrastructure/websockets/BaseWsGateway';

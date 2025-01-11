@@ -13,7 +13,7 @@ import { RegisterCommand } from '../../application/commands/register.command';
 import { RegisterDto } from '../dtos/register.dto';
 
 @ApiBearerAuth()
-@Controller('Auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly queryBus: QueryBus,
@@ -55,7 +55,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Post('logout')
   async logout(@Req() req) {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     return await this.commandBus.execute(new LogoutCommand(userId));
   }
 

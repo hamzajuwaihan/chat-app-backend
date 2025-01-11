@@ -1,9 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-export class BlockUserParamDto {
-  @IsUUID()
-  userId: string;
-
+export class UserBlockingDto {
   @IsUUID()
   blockedId: string;
 }

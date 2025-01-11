@@ -45,6 +45,7 @@ export class UsersService {
   /**
    * Get user by ID
    */
+  //TODO: Either make a new function to return user + profile or do not return profile everytime
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },

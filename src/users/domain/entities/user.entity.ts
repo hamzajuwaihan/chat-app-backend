@@ -21,14 +21,11 @@ export class User {
   @Column({ type: 'text', nullable: true })
   password_hash: string | null;
 
-  @Column({ type: 'varchar', length: 50, nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
   nickname: string | null;
 
   @Column({ type: 'boolean', default: true })
   is_guest: boolean;
-
-  @Column({ type: 'timestamp', nullable: true })
-  expires_at: Date | null;
 
   @OneToOne(() => Profile, (profile) => profile.user, {
     cascade: true,

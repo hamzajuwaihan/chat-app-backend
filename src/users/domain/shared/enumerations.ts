@@ -17,3 +17,9 @@ export enum PrivacySettingType {
   SPECIFIC_USERS = 'specific-users',
   NO_ONE = 'no-one',
 }
+
+export enum Gender {
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
+}

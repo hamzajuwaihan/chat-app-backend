@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { ProfileService } from './profile.service';
+import Sqids from 'sqids';
 
 @Injectable()
 export class UsersService {
@@ -15,13 +16,30 @@ export class UsersService {
   /**
    * Create a new guest user
    */
-  async createGuest(nickname: string): Promise<User> {
-    const guestUser = this.userRepository.create({
-      nickname,
-      is_guest: true,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  async createGuest(user: User): Promise<User> {
+    const sqids = new Sqids({
+      alphabet: 'abcdefghijklmnopqrstuvwxyz0123456789',
     });
-    guestUser.profile = await this.profileService.create();
+
+    const count = await this.userRepository
+      .createQueryBuilder()
+      .where('nickname LIKE :name', { name: `${user.nickname}%` })
+      .getCount();
+
+    let finalNickname = user.nickname;
+
+    if (count !== 0) {
+      const timestamp = Math.floor(Date.now() / 1000);
+      const randomValue = Math.floor(Math.random() * 1000);
+      const uniqueSuffix = sqids.encode([timestamp, randomValue]);
+      finalNickname = `${user.nickname}${uniqueSuffix}`;
+    }
+
+    const guestUser = this.userRepository.create({
+      nickname: finalNickname,
+      is_guest: true,
+      profile: user.profile,
+    });
     return this.userRepository.save(guestUser);
   }
 
@@ -54,16 +72,5 @@ export class UsersService {
       },
     });
     return user;
-  }
-
-  /**
-   * Validate guest session
-   */
-  async validateGuestSession(userId: string): Promise<void> {
-    const user = await this.findById(userId);
-
-    if (user.is_guest && user.expires_at && user.expires_at < new Date()) {
-      throw new Error('Guest session has expired');
-    }
   }
 }

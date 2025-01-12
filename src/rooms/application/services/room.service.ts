@@ -22,39 +22,47 @@ export class RoomService {
   ) {}
 
   /**
-   * Create a new room
+   * Create a new room with system ownership or user ownership
    */
   async createRoom(dto: CreateRoomDto, owner: User): Promise<Room> {
-    const room = this.roomRepository.create({ ...dto, owner_id: owner.id });
-    await this.roomRepository.save(room);
+    // Validate room creation
+    if (!dto.name || !dto.owner_type) {
+      throw new BadRequestException('Room name and owner type are required');
+    }
 
-    const role =
-      dto.owner_type === OwnerType.USER ? RoomRole.OWNER : RoomRole.MEMBER;
-
-    const ownerMembership = this.membershipRepository.create({
-      user: { id: owner.id } as User,
-      room: { id: room.id } as Room,
-      role,
+    // Assign owner_id only for USER type, SYSTEM has no specific owner
+    const room = this.roomRepository.create({
+      ...dto,
+      owner_id: dto.owner_type === OwnerType.USER ? owner.id : null,
     });
 
-    await this.membershipRepository.save(ownerMembership);
+    await this.roomRepository.save(room);
+
+    // Automatically add the owner as a member
+    if (dto.owner_type === OwnerType.USER) {
+      const ownerMembership = this.membershipRepository.create({
+        user: owner,
+        room,
+        role: RoomRole.OWNER,
+      });
+      await this.membershipRepository.save(ownerMembership);
+    }
+
     return room;
   }
+
   /**
    * Get all rooms
    */
   async getAllRooms(): Promise<Room[]> {
-    return this.roomRepository.find({ relations: ['memberships'] });
+    return this.roomRepository.find();
   }
 
   /**
-   * Get a room by ID
+   * Get a single room by ID
    */
   async getRoomById(id: string): Promise<Room> {
-    const room = await this.roomRepository.findOneOrFail({
-      where: { id },
-      relations: ['memberships'],
-    });
+    const room = await this.roomRepository.findOneOrFail({ where: { id } });
 
     return room;
   }
@@ -73,6 +81,11 @@ export class RoomService {
    */
   async deleteRoom(id: string): Promise<void> {
     const room = await this.getRoomById(id);
+
+    // Delete all room memberships first
+    await this.membershipRepository.delete({ room: { id } });
+
+    // Delete the room itself
     await this.roomRepository.remove(room);
   }
 
@@ -82,14 +95,21 @@ export class RoomService {
   async addUserToRoom(roomId: string, user: User): Promise<RoomMembership> {
     const room = await this.getRoomById(roomId);
 
+    // Prevent duplicates
     const existingMembership = await this.membershipRepository.findOne({
-      where: { room, user },
+      where: { room: { id: roomId }, user: { id: user.id } },
     });
+
     if (existingMembership) {
       throw new BadRequestException('User is already a member of this room');
     }
 
-    const membership = this.membershipRepository.create({ user, room });
+    const membership = this.membershipRepository.create({
+      user,
+      room,
+      role: RoomRole.MEMBER,
+    });
+
     return this.membershipRepository.save(membership);
   }
 
@@ -106,5 +126,26 @@ export class RoomService {
     }
 
     await this.membershipRepository.remove(membership);
+  }
+
+  /*
+   * get a room with its members
+   */
+  async getRoomWithMembers(
+    roomId: string,
+  ): Promise<{ room: Room; members: User[] }> {
+    const room = await this.getRoomById(roomId);
+
+    const memberships = await this.membershipRepository.find({
+      where: { room: { id: room.id } },
+      relations: ['user'],
+    });
+
+    const members = memberships.map((membership) => membership.user);
+
+    return {
+      room,
+      members,
+    };
   }
 }

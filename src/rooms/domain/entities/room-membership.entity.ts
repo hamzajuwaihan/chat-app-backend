@@ -15,11 +15,12 @@ export class RoomMembership {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Room, (room) => room.memberships, { onDelete: 'CASCADE' })
+  //
+  @ManyToOne(() => Room)
   @JoinColumn({ name: 'room_id' })
   room: Room;
 
-  @ManyToOne(() => User, (user) => user.memberships, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -37,4 +38,10 @@ export class RoomMembership {
 
   @CreateDateColumn()
   joined_at: Date;
+
+  // TODO: [HIGH] ⚠️ Consider refactoring RoomMembership to avoid ORM-level circular dependencies.
+  // Possible Solutions:
+  // - Use UUIDs instead of FK relations for room_id & user_id.
+  // - Move all membership-related queries to a custom repository.
+  // - Ensure manual cleanup for orphaned memberships when deleting Rooms or Users.
 }

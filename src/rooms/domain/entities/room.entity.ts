@@ -4,13 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { OwnerType, RoomVisibility } from '../shared/enumerations';
 import { Country } from 'src/lookups/domain/entities/country.entity';
-import { RoomMembership } from './room-membership.entity';
 
 @Entity('rooms')
 export class Room {
@@ -48,9 +46,6 @@ export class Room {
   @ManyToOne(() => Country, { nullable: true })
   @JoinColumn({ name: 'country_id' })
   country?: Country;
-
-  @OneToMany(() => RoomMembership, (membership) => membership.room)
-  memberships: RoomMembership[];
 
   @CreateDateColumn()
   created_at: Date;

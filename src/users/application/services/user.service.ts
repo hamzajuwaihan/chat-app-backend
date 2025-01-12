@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
@@ -47,15 +47,12 @@ export class UsersService {
    */
   //TODO: Either make a new function to return user + profile or do not return profile everytime
   async findById(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOneOrFail({
       where: { id },
       relations: {
         profile: true,
       },
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
     return user;
   }
 

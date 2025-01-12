@@ -4,7 +4,7 @@ import { GetBlockedUsersHandler } from './application/queries/get-blocked-users.
 import { GetProfileByUserIdHandler } from './application/queries/get-profile-by-userId.handler';
 import { GetUserByIdHandler } from './application/queries/get-user-by-id.handler';
 import { LookupsModule } from 'src/lookups/lookups.module';
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { Profile } from './domain/entities/profile.entity';
 import { ProfileController } from './presentation/controllers/profile.controller';
 import { ProfileService } from './application/services/profile.service';
@@ -21,14 +21,12 @@ import { UserFeaturePermission } from './domain/entities/user-feature-permission
 import { UserFeaturePermissionService } from './application/services/user-feature-permission.service';
 import { UserFeaturePermissionRepository } from './infrastructure/repositories/user-feature-permission.repository';
 import { PrivacySettingsUpdatedHandler } from './application/events/privacy-settings-update.handler';
-import { RoomsModule } from 'src/rooms/rooms.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Profile, UserFeaturePermission]),
     CqrsModule,
     LookupsModule,
     CacheModule,
-    forwardRef(() => RoomsModule),
   ],
   controllers: [
     UsersController,

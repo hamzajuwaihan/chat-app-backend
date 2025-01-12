@@ -1,0 +1,74 @@
+[
+  {
+    "id": "0f2907e5-f152-46bf-83f4-39be04c877cc",
+    "name": "Jordanian Hangout",
+    "description": "A place for Jordanians to chat and connect.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "fc00e484-f1bd-4af7-b57d-103cb60c7b3b"
+  },
+  {
+    "id": "0eddc6d5-a60a-4cc9-8a84-dfd3cd115ffe",
+    "name": "Saudi Arabia Majlis",
+    "description": "A friendly discussion room for people from Saudi Arabia.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "4f71f735-7ca8-4f70-a631-9a4f04326a9b"
+  },
+  {
+    "id": "252199e3-fcc6-4d8d-a7e3-34d7adb754a3",
+    "name": "Palestinian Voices",
+    "description": "A space to discuss and share Palestinian culture and heritage.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "e27d3a84-2833-42aa-a36e-93ba014ce8cf"
+  },
+  {
+    "id": "7c8eca2a-9bbe-46de-8d87-b1626dddb753",
+    "name": "Iraqi Discussion Room",
+    "description": "Connect with fellow Iraqis and share stories.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "d21db506-025c-40f0-8a8e-9b871c2496f7"
+  },
+  {
+    "id": "ca8a7c00-5afd-4873-9d64-abedfb578255",
+    "name": "Syrian Community",
+    "description": "A room for Syrians to chat, share news, and stay connected.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "b753545c-ef7a-4b00-8164-3aac01da3c51"
+  },
+  {
+    "id": "7aedd15f-5dab-4872-b0d3-c11682e16fce",
+    "name": "Egyptian Chat Lounge",
+    "description": "Join this room to discuss Egyptian culture, history, and more.",
+    "max_users": 50,
+    "theme_settings": null,
+    "visibility": "PUBLIC",
+    "password_protected": false,
+    "owner_type": "SYSTEM",
+    "owner_id": null,
+    "country_id": "7512c79e-a6f1-444b-b456-2f51581a9e17"
+  }
+]

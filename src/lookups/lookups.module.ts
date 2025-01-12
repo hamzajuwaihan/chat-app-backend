@@ -9,9 +9,14 @@ import { CountryService } from './application/services/country.service';
 import { GetCountriesHandler } from './application/queries/get-countries.handler';
 import { GetCountryByIdHandler } from './application/queries/get-country-by-id.handler';
 import { DatabaseModule } from 'src/app/infrastructure/database/database.module';
+import { Room } from 'src/rooms/domain/entities/room.entity';
 
 @Module({
-  imports: [DatabaseModule, TypeOrmModule.forFeature([Country]), CqrsModule],
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([Country, Room]),
+    CqrsModule,
+  ],
   controllers: [CountryController],
   providers: [
     SeedService,

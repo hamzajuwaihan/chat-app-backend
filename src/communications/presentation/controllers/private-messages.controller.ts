@@ -13,12 +13,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { SendMessageCommand } from 'src/communications/application/commands/send-message.command';
-import { Message } from 'src/communications/domain/entities/message.entity';
+import { PrivateMessage } from 'src/communications/domain/entities/private-message.entity';
 import { GetMessagesQuery } from 'src/communications/application/queries/get-message.query';
 
 @ApiBearerAuth()
 @Controller('messages')
-export class MessagesController {
+export class PrivateMessagesController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -44,7 +44,7 @@ export class MessagesController {
     @Param('receiverId') receiverId: string,
     @Query('before') before?: string,
     @Query('limit') limit: number = 20,
-  ): Promise<Message[]> {
+  ): Promise<PrivateMessage[]> {
     return await this.queryBus.execute(
       new GetMessagesQuery(senderId, receiverId, before, limit),
     );

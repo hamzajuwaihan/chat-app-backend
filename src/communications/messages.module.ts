@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MessagesService } from './application/services/messages.service';
-import { Message } from './domain/entities/message.entity';
+import { PrivateMessage } from './domain/entities/private-message.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GetMessagesHandler } from './application/queries/get-messages.handler';
@@ -11,12 +10,14 @@ import { UsersModule } from 'src/users/users.module';
 import { CacheModule } from 'src/app/infrastructure/cache/cache.module';
 import { UserBlockedEvent } from 'src/users/application/events/user-blocked.event';
 import { UserUnBlockedHandler } from './application/events/handlers/user-unblocked.handler';
-import { MessagesController } from './presentation/controllers/messages.controller';
+import { PrivateMessagesController } from './presentation/controllers/private-messages.controller';
 import { SendMessageHandler } from './application/commands/send-message.handler';
+import { PrivateMessagesService } from './application/services/private-message.service';
+import { RoomMessage } from './domain/entities/room-message.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message]),
+    TypeOrmModule.forFeature([PrivateMessage, RoomMessage]),
     CqrsModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
@@ -25,12 +26,12 @@ import { SendMessageHandler } from './application/commands/send-message.handler'
     UsersModule,
     CacheModule,
   ],
-  controllers: [MessagesController],
+  controllers: [PrivateMessagesController],
   providers: [
     GetMessagesHandler,
     GetRecentMessagesHandler,
     MessagesGateway,
-    MessagesService,
+    PrivateMessagesService,
     SendMessageHandler,
     UserBlockedEvent,
     UserUnBlockedHandler,

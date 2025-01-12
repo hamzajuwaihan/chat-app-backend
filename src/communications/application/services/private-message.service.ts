@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Message } from '../../domain/entities/message.entity';
+import { PrivateMessage } from '../../domain/entities/private-message.entity';
 import { LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class MessagesService {
+export class PrivateMessagesService {
   constructor(
-    @InjectRepository(Message)
-    private readonly messagesRepository: Repository<Message>,
+    @InjectRepository(PrivateMessage)
+    private readonly messagesRepository: Repository<PrivateMessage>,
   ) {}
 
-  async create(message: Message): Promise<Message> {
+  async create(message: PrivateMessage): Promise<PrivateMessage> {
     return this.messagesRepository.save(message);
   }
 
@@ -18,7 +18,7 @@ export class MessagesService {
     senderId: string,
     receiverId: string,
     limit: number = 10,
-  ): Promise<Message[]> {
+  ): Promise<PrivateMessage[]> {
     return this.messagesRepository.find({
       where: [
         { senderId, receiverId },
@@ -34,7 +34,7 @@ export class MessagesService {
     receiverId: string,
     before?: string,
     limit: number = 20,
-  ): Promise<Message[]> {
+  ): Promise<PrivateMessage[]> {
     return this.messagesRepository.find({
       where: [
         {

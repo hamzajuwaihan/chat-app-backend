@@ -11,6 +11,9 @@ import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { RefreshTokenQuery } from '../../application/queries/refresh-token.query';
 import { RegisterCommand } from '../../application/commands/register.command';
 import { RegisterDto } from '../dtos/register.dto';
+import { User } from 'src/users/domain/entities/user.entity';
+import { Gender } from 'src/users/domain/shared/enumerations';
+import { Profile } from 'src/users/domain/entities/profile.entity';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -40,9 +43,13 @@ export class AuthController {
 
   @Post('create-guest')
   async createGuest(@Body() guestDto: GuestDto) {
-    return await this.commandBus.execute(
-      new CreateGuestCommand(guestDto.nickname),
-    );
+    const user = new User();
+    user.nickname = guestDto.nickname;
+    user.is_guest = true;
+    user.profile = new Profile();
+    user.profile.gender = guestDto.gender as unknown as Gender;
+
+    return await this.commandBus.execute(new CreateGuestCommand(user));
   }
 
   @Post('refresh-token')

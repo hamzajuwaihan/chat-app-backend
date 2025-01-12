@@ -1,32 +1,38 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateGuestCommand } from './create-guest.command';
-import { UsersService } from 'src/users/application/services/user.service';
 import { CacheService } from 'src/app/infrastructure/cache/cache.service';
+import { AuthService } from '../services/auth.service';
 
 @CommandHandler(CreateGuestCommand)
 export class CreateGuestHandler implements ICommandHandler<CreateGuestCommand> {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
     private readonly jwtService: JwtService,
-    private readonly cacheService: CacheService, // Added CacheService for refresh token storage
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(
     command: CreateGuestCommand,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { nickname } = command;
+    const { user } = command;
 
-    const guest = await this.usersService.createGuest(nickname);
+    const guest = await this.authService.createGuest(user);
 
-    const payload = { sub: guest.id, isGuest: true };
-
-    // Access token expires in 3 days (72 hours)
+    const payload = {
+      sub: guest.id,
+      isGuest: true,
+      nickname: guest.nickname,
+      profile: {
+        gender: guest.profile.gender,
+        status: guest.profile.status,
+      },
+      createdAt: guest.createdAt,
+    };
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '72h',
+      expiresIn: '15m',
     });
 
-    // Refresh token also expires in 3 days
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: '3d',
     });

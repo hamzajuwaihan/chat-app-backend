@@ -50,22 +50,8 @@ export class AuthService {
   /**
    * Create a guest session
    */
-  async createGuest(user: User): Promise<{ accessToken: string }> {
-    const guest = await this.usersService.createGuest(user.nickname);
-
-    const payload = { sub: guest.id, isGuest: true };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
-    });
-
-    return { accessToken };
-  }
-
-  /**
-   * Validate guest session
-   */
-  async validateGuestSession(userId: string): Promise<void> {
-    await this.usersService.validateGuestSession(userId);
+  async createGuest(user: User): Promise<User> {
+    return await this.usersService.createGuest(user);
   }
 
   /**

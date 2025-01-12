@@ -1,3 +1,5 @@
+import { User } from 'src/users/domain/entities/user.entity';
+
 export class CreateGuestCommand {
-  constructor(public readonly nickname: string) {}
+  constructor(public readonly user: User) {}
 }

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/domain/entities/user.entity';
 import { Country } from 'src/lookups/domain/entities/country.entity';
-import { PrivacySettingType, UserStatus } from '../shared/enumerations';
+import { Gender, PrivacySettingType, UserStatus } from '../shared/enumerations';
 
 @Entity('profiles')
 export class Profile {
@@ -53,6 +53,14 @@ export class Profile {
     nullable: true,
   })
   status: UserStatus | null;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    default: Gender.OTHER,
+    nullable: true,
+  })
+  gender: Gender;
 
   @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

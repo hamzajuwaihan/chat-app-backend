@@ -32,23 +32,20 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return await this.commandBus.execute(
-      new RegisterCommand(
-        registerDto.email,
-        registerDto.password,
-        registerDto.nickname,
-      ),
-    );
+    const user = User.createUserWithProfile({
+      ...registerDto,
+      gender: registerDto.gender as unknown as Gender,
+    });
+    return await this.commandBus.execute(new RegisterCommand(user));
   }
 
   @Post('create-guest')
   async createGuest(@Body() guestDto: GuestDto) {
-    const user = new User();
-    user.nickname = guestDto.nickname;
-    user.is_guest = true;
-    user.profile = new Profile();
-    user.profile.gender = guestDto.gender as unknown as Gender;
-
+    const user = User.createUserWithProfile({
+      ...guestDto,
+      gender: guestDto.gender as unknown as Gender,
+    });
+    console.log(user);
     return await this.commandBus.execute(new CreateGuestCommand(user));
   }
 

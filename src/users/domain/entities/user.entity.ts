@@ -9,6 +9,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Profile } from 'src/users/domain/entities/profile.entity';
+import { Gender } from '../shared/enumerations';
 
 @Entity('users')
 export class User {
@@ -46,4 +47,20 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  static createUserWithProfile(userDetails: {
+    nickname: string;
+    email?: string;
+    password?: string;
+    gender?: Gender | null;
+  }): User {
+    const user = new User();
+    user.nickname = userDetails.nickname;
+    user.password_hash = userDetails?.password;
+    user.email = userDetails?.email;
+    user.profile = new Profile();
+    user.profile.gender = userDetails.gender as unknown as Gender;
+
+    return user;
+  }
 }

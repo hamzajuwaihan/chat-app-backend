@@ -27,6 +27,12 @@ export class RegisterDto {
   @Length(3, 20)
   nickname: string;
 
+  @ApiProperty({
+    example: 'Male',
+    description: 'The gender of the guest user',
+    enum: GenderDto,
+    enumName: 'GenderDto',
+  })
   @IsNotEmpty()
   @IsEnum(GenderDto, { message: 'Invalid Gender' })
   gender: GenderDto;

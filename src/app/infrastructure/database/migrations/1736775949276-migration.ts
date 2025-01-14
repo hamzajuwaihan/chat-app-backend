@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1736717257347 implements MigrationInterface {
-  name = 'Migration1736717257347';
+export class Migration1736775949276 implements MigrationInterface {
+  name = 'Migration1736775949276';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -26,10 +26,10 @@ export class Migration1736717257347 implements MigrationInterface {
       `CREATE TABLE "room_memberships" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "role" "public"."room_memberships_role_enum" NOT NULL DEFAULT 'member', "banned_until" TIMESTAMP, "muted_until" TIMESTAMP, "reason" text, "joined_at" TIMESTAMP NOT NULL DEFAULT now(), "room_id" uuid, "user_id" uuid, CONSTRAINT "PK_4e7bdab6801b248411afc84b00f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "private_messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "senderId" uuid NOT NULL, "receiverId" uuid NOT NULL, "text" text NOT NULL, "message_type" "public"."private_messages_message_type_enum" NOT NULL DEFAULT 'text', "createdAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_1bf7cc91ba0b17389d76f7ad2a4" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "room_messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "room_id" uuid NOT NULL, "sender_id" uuid NOT NULL, "message_type" "public"."room_messages_message_type_enum" NOT NULL DEFAULT 'text', "content" text NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_bd83c95b3d0ad3931d6c1687ee1" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "room_messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "room_id" uuid NOT NULL, "sender_id" uuid NOT NULL, "message_type" "public"."room_messages_message_type_enum" NOT NULL DEFAULT 'text', "content" text NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_bd83c95b3d0ad3931d6c1687ee1" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "private_messages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "senderId" uuid NOT NULL, "receiverId" uuid NOT NULL, "text" text NOT NULL, "message_type" "public"."private_messages_message_type_enum" NOT NULL DEFAULT 'text', "createdAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_1bf7cc91ba0b17389d76f7ad2a4" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "blocked_users" ("blocker_id" uuid NOT NULL, "blocked_id" uuid NOT NULL, CONSTRAINT "PK_b67ed0acca994276b01f2688437" PRIMARY KEY ("blocker_id", "blocked_id"))`,
@@ -59,7 +59,7 @@ export class Migration1736717257347 implements MigrationInterface {
       `ALTER TABLE "room_memberships" ADD CONSTRAINT "FK_f32bd199eb196f84d0893a3054d" FOREIGN KEY ("room_id") REFERENCES "rooms"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
-      `ALTER TABLE "room_memberships" ADD CONSTRAINT "FK_69395a6306f92243ffda7ea113a" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+      `ALTER TABLE "room_memberships" ADD CONSTRAINT "FK_69395a6306f92243ffda7ea113a" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "blocked_users" ADD CONSTRAINT "FK_7e543cda1c6f5aa2034fd2c105d" FOREIGN KEY ("blocker_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
@@ -104,8 +104,8 @@ export class Migration1736717257347 implements MigrationInterface {
       `DROP INDEX "public"."IDX_7e543cda1c6f5aa2034fd2c105"`,
     );
     await queryRunner.query(`DROP TABLE "blocked_users"`);
-    await queryRunner.query(`DROP TABLE "room_messages"`);
     await queryRunner.query(`DROP TABLE "private_messages"`);
+    await queryRunner.query(`DROP TABLE "room_messages"`);
     await queryRunner.query(`DROP TABLE "room_memberships"`);
     await queryRunner.query(`DROP TABLE "rooms"`);
     await queryRunner.query(`DROP TABLE "user_feature_permissions"`);

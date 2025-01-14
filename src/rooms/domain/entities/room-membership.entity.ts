@@ -20,7 +20,7 @@ export class RoomMembership {
   @JoinColumn({ name: 'room_id' })
   room: Room;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

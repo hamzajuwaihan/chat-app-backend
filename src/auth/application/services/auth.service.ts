@@ -4,12 +4,12 @@ import * as argon2 from 'argon2';
 import { User } from 'src/users/domain/entities/user.entity';
 import { UsersService } from 'src/users/application/services/user.service';
 import { CacheService } from 'src/app/infrastructure/cache/cache.service';
-import { TokensObject } from 'src/users/domain/value-objects/tokens-object';
+import { TokensObject } from 'src/auth/domain/value-objects/tokens-object';
 
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
-const MAX_ATTEMPTS = 5;
-const LOCK_TIME = 300;
+const ACCESS_TOKEN_EXPIRY_SECONDS: number = 900;
+const REFRESH_TOKEN_EXPIRY_SECONDS: number = 604800;
+const MAX_ATTEMPTS: number = 5;
+const LOCK_TIME: number = 300;
 
 @Injectable()
 export class AuthService {
@@ -24,10 +24,10 @@ export class AuthService {
    */
   async register(
     email: string,
-    password_hash: string,
+    password: string,
     nickname: string,
   ): Promise<TokensObject> {
-    const hashedPassword = await argon2.hash(password_hash);
+    const hashedPassword = await argon2.hash(password);
 
     const savedUser = await this.usersService.createUser({
       email,
@@ -99,7 +99,7 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string): Promise<TokensObject> {
-    let payload;
+    let payload: any;
     try {
       payload = this.jwtService.verify(refreshToken);
     } catch (err) {
@@ -119,7 +119,7 @@ export class AuthService {
       throw new UnauthorizedException('User does not exist');
     }
 
-    const newPayload = await this.generateTokens(user);
+    const newPayload: TokensObject = await this.generateTokens(user);
 
     await this.cacheService.set(
       `access_token:${user.id}`,
@@ -139,8 +139,8 @@ export class AuthService {
 
     const lockKey = `failed_attempts:${user.id}`;
 
-    const attempts = await this.cacheService.get(lockKey);
-    const attemptsCount = attempts ? parseInt(attempts) : 0;
+    const attempts: number = parseInt(await this.cacheService.get(lockKey));
+    const attemptsCount: number = attempts ? attempts : 0;
 
     if (attemptsCount >= MAX_ATTEMPTS) {
       throw new UnauthorizedException('Account locked. Try again later.');
@@ -151,7 +151,7 @@ export class AuthService {
     if (!isPasswordValid) {
       await this.cacheService.set(
         lockKey,
-        ((parseInt(attempts) || 0) + 1).toString(),
+        ((attempts || 0) + 1).toString(),
         LOCK_TIME,
       );
       throw new UnauthorizedException('Invalid email or password');
@@ -166,21 +166,21 @@ export class AuthService {
     const payload = this.createJwtPayload(user);
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: ACCESS_TOKEN_EXPIRY,
+      expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS,
     });
     const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: REFRESH_TOKEN_EXPIRY,
+      expiresIn: REFRESH_TOKEN_EXPIRY_SECONDS,
     });
 
     await this.cacheService.set(
       `refresh_token:${user.id}`,
       refreshToken,
-      parseInt(ACCESS_TOKEN_EXPIRY),
+      ACCESS_TOKEN_EXPIRY_SECONDS,
     );
     await this.cacheService.set(
       `access_token:${user.id}`,
       accessToken,
-      parseInt(ACCESS_TOKEN_EXPIRY),
+      ACCESS_TOKEN_EXPIRY_SECONDS,
     );
 
     return new TokensObject(accessToken, refreshToken);

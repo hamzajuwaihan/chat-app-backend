@@ -36,8 +36,6 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'List of blocked users' })
   async getBlockedUsers(@Req() req) {
     const userId = req.user.id;
-    console.log(userId);
-    console.log('test');
     return await this.queryBus.execute(new GetBlockedUsersQuery(userId));
   }
 
@@ -49,7 +47,6 @@ export class UsersController {
   @ApiResponse({ status: 201, description: 'User blocked successfully' })
   async blockUser(@Req() req, @Param() params: UserBlockingDto) {
     const userId = req.user.id;
-    console.log('Test route hit');
 
     await this.commandBus.execute(
       new BlockUserCommand(userId, params.blockedId),
@@ -80,7 +77,6 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'The user data', type: User })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserById(@Param() params: UuidParamDto): Promise<User> {
-    console.log('testing');
     return await this.queryBus.execute(new GetUserByIdQuery(params.id));
   }
 }

@@ -13,7 +13,6 @@ import { RegisterCommand } from '../../application/commands/register.command';
 import { RegisterDto } from '../dtos/register.dto';
 import { User } from 'src/users/domain/entities/user.entity';
 import { Gender } from 'src/users/domain/shared/enumerations';
-import { Profile } from 'src/users/domain/entities/profile.entity';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -45,7 +44,6 @@ export class AuthController {
       ...guestDto,
       gender: guestDto.gender as unknown as Gender,
     });
-    console.log(user);
     return await this.commandBus.execute(new CreateGuestCommand(user));
   }
 
@@ -63,7 +61,7 @@ export class AuthController {
     return await this.commandBus.execute(new LogoutCommand(userId));
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt')) //Will keep for testing
   @Get('protected')
   getProtectedResource() {
     return { message: 'This is a protected resource' };

@@ -13,7 +13,6 @@ import { RegisterCommand } from '../../application/commands/register.command';
 import { RegisterDto } from '../dtos/register.dto';
 import { User } from 'src/users/domain/entities/user.entity';
 import { Gender } from 'src/users/domain/shared/enumerations';
-import { Profile } from 'src/users/domain/entities/profile.entity';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -32,23 +31,19 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return await this.commandBus.execute(
-      new RegisterCommand(
-        registerDto.email,
-        registerDto.password,
-        registerDto.nickname,
-      ),
-    );
+    const user = User.createUserWithProfile({
+      ...registerDto,
+      gender: registerDto.gender as unknown as Gender,
+    });
+    return await this.commandBus.execute(new RegisterCommand(user));
   }
 
   @Post('create-guest')
   async createGuest(@Body() guestDto: GuestDto) {
-    const user = new User();
-    user.nickname = guestDto.nickname;
-    user.is_guest = true;
-    user.profile = new Profile();
-    user.profile.gender = guestDto.gender as unknown as Gender;
-
+    const user = User.createUserWithProfile({
+      ...guestDto,
+      gender: guestDto.gender as unknown as Gender,
+    });
     return await this.commandBus.execute(new CreateGuestCommand(user));
   }
 
@@ -66,7 +61,7 @@ export class AuthController {
     return await this.commandBus.execute(new LogoutCommand(userId));
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt')) //Will keep for testing
   @Get('protected')
   getProtectedResource() {
     return { message: 'This is a protected resource' };

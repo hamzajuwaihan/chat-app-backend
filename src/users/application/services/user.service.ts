@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { ProfileService } from './profile.service';
 import Sqids from 'sqids';
@@ -48,16 +48,32 @@ export class UsersService {
    */
 
   async createUser(user: Partial<User>): Promise<User> {
-    const newUser = this.userRepository.create(user);
-    newUser.profile = await this.profileService.create();
-    return this.userRepository.save(newUser);
+    try {
+      const newUser = this.userRepository.create(user);
+      newUser.profile = await this.profileService.create();
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        error.message.includes('duplicate key value violates unique constraint')
+      ) {
+        throw new ConflictException('Email or nickname is already in use.');
+      }
+      // Rethrow the error if it's not a duplicate issue
+      throw error;
+    }
   }
 
   /**
    * Get user by email
    */
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({
+      where: { email },
+      relations: {
+        profile: true,
+      },
+    });
   }
 
   /**
@@ -71,6 +87,12 @@ export class UsersService {
         profile: true,
       },
     });
+    delete user['password_hash'];
+
     return user;
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }
